@@ -31,24 +31,57 @@ void print_result(int** result,int n1, int m2){
 	fclose(out);
 } 
 
-int** check(int** matriz, int n)
+int** new_matriz(int** matriz, int new_n, int n, int m)
+{	
+		int new_matriz[new_n][new_n];
+
+		int aux_1 = 0, int aux_2 = 0;
+		while(aux_1 < new_n)
+		{
+			if(aux_2 >= new_n)
+			{
+				aux_1++;
+				aux_2 = 0;
+			}
+			else 
+			{
+				if(aux_1 >= n||aux_2 >= m)
+				{
+					new_matriz[aux_1][aux_2] = 0;
+				}
+				else
+				{
+					new_matriz[aux_1][aux_2] = matriz[aux_1][aux_2];
+				}
+				aux_2++;
+			}
+		}
+		return new_matriz;
+}
+
+int check(int n, int aux, int p)
 {
 	if(n == 1)
 	{
-		return matriz;
+		return n;
 	}
 	else
 	{
-		if((n % 2) == 0)
-		{
-			check(matriz, (n/2));
-		}
-		else
+		if((n % 2) != 0)
 		{
 			
+			n = n + p;
+			aux++;
+			p = p*2 ;
+
 		}
+
+		check(n, (aux/2), p);
 	}
 }
+
+		
+	
 
 int** strassen_multi(int** matriz_a,int** matriz_b,int n1,int m1, int n2, int m2)
 {
@@ -56,39 +89,74 @@ int** strassen_multi(int** matriz_a,int** matriz_b,int n1,int m1, int n2, int m2
 	{
 		int result[1][1];
 		result[0][0] = (matriz_a[0][0]*matriz_b[0][0]);
-		return result;
 	}
-	else if(n1 == m1 && n2 == m2)
+	
+	else
 	{
 
+	if(n1 >= m1 && n1 >= n2 && n1 >= m2)
+	{
+		n = n1;
 	}
-	/*
-		int s1 = matriz_b[0][1] - matriz_b[1][1];
-		int s2 = matriz_a[0][0] + matriz_a[0][1];
-		int s3 = matriz_a[1][0] + matriz_a[1][1];
-		int s4 = matriz_b[1][0] - matriz_b[0][0];
-		int s5 = matriz_a[0][0] + matriz_a[1][1];
-		int s6 = matriz_b[0][0] + matriz_b[1][1];
-		int s7 = matriz_a[0][1] - matriz_a[1][1];
-		int s8 = matriz_b[1][0] + matriz_a[1][1];
-		int s9 = matriz_a[0][0] - matriz_a[1][0];
-		int s10 = matriz_b[0][0] + matriz_b[0][1];
+	else if(n2 >= n3 && n2 >= n4)
+	{
+		n = m1;
+	}
+	else if(n3 >= n4)
+	{
+		n = n2;
+	}
+	else
+	{
+		n = m2;
+	}
+	 int new_n = check(n,n,1); 
+	 int new_matriz_a = new_matriz(matriz_a,new_n1,n1,m1);
+		int new_matriz_b = new_matriz(matriz_b,new_n2,n2,m2);
+		int result[n][n];
 
-		int p1 = s1 * matriz_a[0][0];
-		int p2 = s2 * matriz_b[1][1];
-		int p3 = s3 * matriz_b[0][0];
-		int p4 = s4 * matriz_a[1][1];
-		int p5 = s5 * s6;
-		int p6 = s7 * s8;
-		int p7 = s9 * s10;
+		int aux_1 = 0, aux_2 = 0;
+		while(aux_1 < n)
+		{
+			if(aux_2 >= n)
+			{
+				aux_1 = aux_1 + 2;
+				aux_2 = 0;
+			}
+			else
+			{
+				int s1 = new_matriz_b[aux_1][aux_2 + 1] - new_matriz_b[aux_1+1][aux_2 + 1];
+				int s2 = new_matriz_a[aux_1][aux_2] + new_matriz_a[aux_1][aux_2 + 1];
+				int s3 = new_matriz_a[aux_1 + 1][aux_2] + new_matriz_a[aux_1 + 1][aux_2 + 1];
+				int s4 = new_matriz_b[aux_1+1][aux_2] - new_matriz_b[aux_1][aux_2];
+				int s5 = new_matriz_a[aux_1][aux_2] + new_matriz_a[aux_1 + 1][aux_2 + 1];
+				int s6 = new_matriz_b[aux_1][aux_2] + new_matriz_b[aux_1+1][aux_2 + 1];
+				int s7 = new_matriz_a[aux_1][aux_2 + 1] - new_matriz_a[aux_1 + 1][aux_2 + 1];
+				int s8 = new_matriz_b[aux_1+1][aux_2] + new_matriz_a[aux_1 + 1][aux_2 + 1];
+				int s9 = new_matriz_a[aux_1][aux_2] - new_matriz_a[aux_1 + 1][aux_2];
+				int s10 = new_matriz_b[aux_1][aux_2] + new_matriz_b[aux_1][aux_2 + 1];
 
-		int c[2][2];
-		c[0][0] = p5 + p4 -p2 + p6;
-		c[0][1] = p1 + p2;
-		c[1][0] = p3 + p4;
-		c[1][1] = p5 + p1 - p3 - p7;
-	*/
+				int p1 = s1 * new_matriz_a[aux_1][aux_2];
+				int p2 = s2 * new_matriz_b[aux_1+1][aux_2 + 1];
+				int p3 = s3 * new_matriz_b[aux_1][aux_2];
+				int p4 = s4 * new_matriz_a[aux_1 + 1][aux_2 + 1];
+				int p5 = s5 * s6;
+				int p6 = s7 * s8;
+				int p7 = s9 * s10;
 
+				result[aux_1][aux_2] = p5 + p4 -p2 + p6;
+				result[aux_1][aux_2 + 1] = p1 + p2;
+				result[aux_1 + 1][aux_2] = p3 + p4;
+				result[aux_1 + 1][aux_2 +1] = p5 + p1 - p3 - p7;
+
+				aux_2 = aux_2 + 2;	
+			}
+		
+		}
+
+	}
+	
+	return result;
 }
 
 int main()
