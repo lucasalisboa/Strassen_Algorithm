@@ -35,7 +35,7 @@ int** new_matriz(int** matriz, int new_n, int n, int m)
 {	
 		int new_matriz[new_n][new_n];
 
-		int aux_1 = 0, int aux_2 = 0;
+		int aux_1 = 0, aux_2 = 0;
 		while(aux_1 < new_n)
 		{
 			if(aux_2 >= new_n)
@@ -93,16 +93,17 @@ int** strassen_multi(int** matriz_a,int** matriz_b,int n1,int m1, int n2, int m2
 	
 	else
 	{
+	int n;	
 
 	if(n1 >= m1 && n1 >= n2 && n1 >= m2)
 	{
 		n = n1;
 	}
-	else if(n2 >= n3 && n2 >= n4)
+	else if(m1 >= n2 && n2 >= m2)
 	{
 		n = m1;
 	}
-	else if(n3 >= n4)
+	else if(n2 >= m2)
 	{
 		n = n2;
 	}
@@ -110,15 +111,15 @@ int** strassen_multi(int** matriz_a,int** matriz_b,int n1,int m1, int n2, int m2
 	{
 		n = m2;
 	}
-	 int new_n = check(n,n,1); 
-	 int new_matriz_a = new_matriz(matriz_a,new_n1,n1,m1);
-		int new_matriz_b = new_matriz(matriz_b,new_n2,n2,m2);
-		int result[n][n];
+	 	int new_n = check(n,n,1); 
+	 	int new_matriz_a[new_n][new_n] = new_matriz(matriz_a,new_n,n1,m1);
+		int new_matriz_b[new_n][new_n] = new_matriz(matriz_b,new_n,n2,m2);
+		int result[new_n][new_n];
 
 		int aux_1 = 0, aux_2 = 0;
-		while(aux_1 < n)
+		while(aux_1 < new_n)
 		{
-			if(aux_2 >= n)
+			if(aux_2 >= new_n)
 			{
 				aux_1 = aux_1 + 2;
 				aux_2 = 0;
@@ -209,6 +210,7 @@ int main()
       fscanf(in,"%d ",&matriz_b[aux_1][aux_2]);
       aux_2++;
   }
+	}
 
   int result [n1][m2] = strassen_multi(matriz_a,matriz_b,n1,m1,n2,m2);
   print_result(result,n1,m2);
@@ -216,4 +218,5 @@ int main()
   fclose(in);
 
   return 0;
+
 }
