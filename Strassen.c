@@ -89,6 +89,7 @@ int** strassen_multi(int** matriz_a,int** matriz_b,int n1,int m1, int n2, int m2
 	{
 		int result[1][1];
 		result[0][0] = (matriz_a[0][0]*matriz_b[0][0]);
+		return result;
 	}
 	
 	else
@@ -152,12 +153,11 @@ int** strassen_multi(int** matriz_a,int** matriz_b,int n1,int m1, int n2, int m2
 
 				aux_2 = aux_2 + 2;	
 			}
-		
 		}
-
-	}
-	
+			
 	return result;
+	}	
+
 }
 
 int main()
