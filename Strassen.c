@@ -33,13 +33,13 @@ void print_result(int** result,int n1, int m2){
 
 int check(int n, int aux, int p)
 {
-	if(n == 1)
+	if(aux == 1)
 	{
 		return n;
 	}
 	else
 	{
-		if((n % 2) != 0)
+		if((aux % 2) != 0)
 		{
 			
 			n = n + p;
