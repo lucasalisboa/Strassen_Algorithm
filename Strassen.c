@@ -29,7 +29,7 @@ void print_result(int** result,int n1, int m2){
 
     }
 	fclose(out);
-} 
+}
 
 int check(int n, int aux, int p)
 {
@@ -41,7 +41,7 @@ int check(int n, int aux, int p)
 	{
 		if((aux % 2) != 0)
 		{
-			
+
 			n = n + p;
 			aux++;
 			p = p*2 ;
@@ -52,8 +52,8 @@ int check(int n, int aux, int p)
 	}
 }
 
-		
-	
+
+
 
 void strassen_multi(int** new_matriz_a,int** new_matriz_b,int** result, int n)
 {
@@ -91,9 +91,9 @@ void strassen_multi(int** new_matriz_a,int** new_matriz_b,int** result, int n)
 				result[aux_1 + 1][aux_2] = p3 + p4;
 				result[aux_1 + 1][aux_2 +1] = p5 + p1 - p3 - p7;
 
-				aux_2 = aux_2 + 2;	
+				aux_2 = aux_2 + 2;
 			}
-		}	
+		}
 
 }
 
@@ -166,19 +166,18 @@ int main()
 	{
 		n = m2;
 	}
-	 	int new_n = check(n,n,1); 
+	 	int new_n = check(n,n,1);
 	 	int result[new_n][new_n];
 
 
 	if(n1 == 1 && m1 == 1 && n2 == 1 && m2 == 1)
 	{
-		int result[1][1];
 		result[0][0] = (matriz_a[0][0]*matriz_b[0][0]);
 	}
 	else
-	{ 
+	{
 	 	int new_matriz_a[new_n][new_n];
-	 	aux_1 = 0; 
+	 	aux_1 = 0;
 	 	aux_2 = 0;
 		while(aux_1 < new_n)
 		{
@@ -187,9 +186,9 @@ int main()
 				aux_1++;
 				aux_2 = 0;
 			}
-			else 
+			else
 			{
-				if(aux_1 >= n||aux_2 >= m1)
+				if(aux_1 >= n1||aux_2 >= m1)
 				{
 					new_matriz_a[aux_1][aux_2] = 0;
 				}
@@ -200,9 +199,9 @@ int main()
 				aux_2++;
 			}
 		}
-		
+
 		int new_matriz_b[new_n][new_n];
-		aux_1 = 0; 
+		aux_1 = 0;
 	 	aux_2 = 0;
 	 	while(aux_1 < new_n)
 		{
@@ -211,9 +210,9 @@ int main()
 				aux_1++;
 				aux_2 = 0;
 			}
-			else 
+			else
 			{
-				if(aux_1 >= n||aux_2 >= m2)
+				if(aux_1 >= n2||aux_2 >= m2)
 				{
 					new_matriz_b[aux_1][aux_2] = 0;
 				}
@@ -230,7 +229,7 @@ int main()
 	}
 
 
-  
+
   print_result(result,n1,m2);
 
   fclose(in);
