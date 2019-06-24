@@ -1,239 +1,192 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void print_result(int** result,int n1, int m2){
+int** createZeroMatrix(int n){
+	int ** array = (int**)malloc(n*sizeof(int *));
+	int i,j;
+	for(i = 0;i < n; i++) {
+	    	array[i] = (int*)malloc(n*sizeof(int));
+   	 	for(j = 0; j < n; j++) {
+	        	array[i][j] = 0.0;
+	    	}
+	}
+	return array;
+}
+
+
+void compose(int** matrix,int** result,int row,int col,int n){
+	int i,j,r=row,c=col;
+	for(i=0;i<n;i++){
+		c=col;
+		for(j=0;j<n;j++){
+			result[r][c]=matrix[i][j];
+			c++;
+		}
+		r++;
+	}
+}
+
+int** divide(int** matrix,int n, int row,int col) {
+	int n_new=n/2;
+
+	int ** array = createZeroMatrix(n_new);
+	int i,j,r=row,c=col;
+	for(i = 0;i < n_new; i++) {
+		c=col;
+   	 	for(j = 0; j < n_new; j++) {
+        		array[i][j] = matrix[r][c];
+			c++;
+    		}
+		r++;
+	}
+	return array;
+}
+
+int ** addMatrix(int** matrixA,int** matrixB,int n){
+	int ** res = createZeroMatrix(n);
+	int i,j;
+	for(i=0;i<n;i++)
+		for(j=0;j<n;j++)
+			res[i][j]=matrixA[i][j]+matrixB[i][j];
+
+	return res;
+}
+
+int** subMatrix(int** matrixA,int** matrixB,int n){
+	int ** res = createZeroMatrix(n);
+	int i,j;
+	for(i=0;i<n;i++)
+		for(j=0;j<n;j++)
+			res[i][j]=matrixA[i][j]-matrixB[i][j];
+
+	return res;
+}
+
+
+int ** create(int new_n,FILE *in,int m,int n){
+	int ** array = createZeroMatrix(new_n);
+	int i,j;
+	int k;
+	for(i = 0;i < m; i++) {
+   	 	for(j = 0; j < n; j++) {
+	    		fscanf(in,"%d",&k);
+	    		array[i][j] = k;
+			}
+	}
+	return array;
+}
+
+void printMatrix(int ** matrix,int n,int n1,int m2){
+	int i,j;
 	FILE* out;
 	out = fopen("out.txt","w");
 
-  if(out == NULL){
-		printf("File doesn't exist\n");
-		return;
-	}
 	fprintf(out,"18110495\n");
 	fprintf(out,"%d %d\n",n1,m2);
-
-  int aux_1 = 0, aux_2 = 0;
-    while(aux_1< n1)
-    {
-      if(aux_2 == (m2-1))
-      {
-        printf("%d\n",result[aux_1][aux_2] );
-        aux_1++;
-        aux_2 = 0;
-      }
-      else
-      {
-        printf("%d ",result[aux_1][aux_2]);
-        aux_2++;
-      }
-
-    }
+	for(i=0;i<n1;i++){
+		for(j=0;j<m2;j++){
+			if (j != 0){
+				fprintf(out, " ");
+			}
+			fprintf(out,"%d",matrix[i][j]);
+		}
+		fprintf(out,"\n");
+	}
 	fclose(out);
 }
 
-int check(int n, int aux, int p)
-{
-	if(aux == 1)
-	{
-		return n;
+int** strassen(int** matrixA, int** matrixB,int n){
+	int** result = createZeroMatrix(n);
+
+	if(n>1) {
+
+		int** a11 = divide(matrixA, n, 0, 0);
+		int** a12 = divide(matrixA, n, 0, (n/2));
+		int** a21 = divide(matrixA, n, (n/2), 0);
+		int** a22 = divide(matrixA, n, (n/2), (n/2));
+		int** b11 = divide(matrixB, n, 0, 0);
+		int** b12 = divide(matrixB, n, 0, n/2);
+		int** b21 = divide(matrixB, n, n/2, 0);
+		int** b22 = divide(matrixB, n, n/2, n/2);
+
+		int** m1= strassen(addMatrix(a11,a22,n/2),addMatrix(b11,b22,n/2),n/2);
+		int** m2= strassen(addMatrix(a21,a22,n/2),b11,n/2);
+		int** m3= strassen(a11,subMatrix(b12,b22,n/2),n/2);
+		int** m4= strassen(a22,subMatrix(b21,b11,n/2),n/2);
+		int** m5= strassen(addMatrix(a11,a12,n/2),b22,n/2);
+		int** m6= strassen(subMatrix(a21,a11,n/2),addMatrix(b11,b12,n/2),n/2);
+		int** m7= strassen(subMatrix(a12,a22,n/2),addMatrix(b21,b22,n/2),n/2);
+
+		int** c11 = addMatrix(subMatrix(addMatrix(m1,m4,n/2),m5,n/2),m7,n/2);
+		int** c12 = addMatrix(m3,m5,n/2);
+		int** c21 = addMatrix(m2,m4,n/2);
+		int** c22 = addMatrix(subMatrix(addMatrix(m1,m3,n/2),m2,n/2),m6,n/2);
+
+		compose(c11,result,0,0,n/2);
+		compose(c12,result,0,n/2,n/2);
+		compose(c21,result,n/2,0,n/2);
+		compose(c22,result,n/2,n/2,n/2);
 	}
-	else
-	{
-		if((aux % 2) != 0)
-		{
-
-			n = n + p;
-			aux++;
-			p = p*2 ;
-
-		}
-
-		check(n, (aux/2), p);
+	else {
+		result[0][0]=matrixA[0][0]*matrixB[0][0];
 	}
+	return result;
 }
 
 
+int main() {
+	int i=0,j=0,n=0;
+	int n1,m1,n2,m2;
+	int new_n = 1;
 
-
-void strassen_multi(int** new_matriz_a,int** new_matriz_b,int** result, int n)
-{
-		int aux_1 = 0, aux_2 = 0;
-		while(aux_1 < n)
-		{
-			if(aux_2 >= n)
-			{
-				aux_1 = aux_1 + 2;
-				aux_2 = 0;
-			}
-			else
-			{
-				int s1 = new_matriz_b[aux_1][aux_2 + 1] - new_matriz_b[aux_1+1][aux_2 + 1];
-				int s2 = new_matriz_a[aux_1][aux_2] + new_matriz_a[aux_1][aux_2 + 1];
-				int s3 = new_matriz_a[aux_1 + 1][aux_2] + new_matriz_a[aux_1 + 1][aux_2 + 1];
-				int s4 = new_matriz_b[aux_1+1][aux_2] - new_matriz_b[aux_1][aux_2];
-				int s5 = new_matriz_a[aux_1][aux_2] + new_matriz_a[aux_1 + 1][aux_2 + 1];
-				int s6 = new_matriz_b[aux_1][aux_2] + new_matriz_b[aux_1+1][aux_2 + 1];
-				int s7 = new_matriz_a[aux_1][aux_2 + 1] - new_matriz_a[aux_1 + 1][aux_2 + 1];
-				int s8 = new_matriz_b[aux_1+1][aux_2] + new_matriz_a[aux_1 + 1][aux_2 + 1];
-				int s9 = new_matriz_a[aux_1][aux_2] - new_matriz_a[aux_1 + 1][aux_2];
-				int s10 = new_matriz_b[aux_1][aux_2] + new_matriz_b[aux_1][aux_2 + 1];
-
-				int p1 = s1 * new_matriz_a[aux_1][aux_2];
-				int p2 = s2 * new_matriz_b[aux_1+1][aux_2 + 1];
-				int p3 = s3 * new_matriz_b[aux_1][aux_2];
-				int p4 = s4 * new_matriz_a[aux_1 + 1][aux_2 + 1];
-				int p5 = s5 * s6;
-				int p6 = s7 * s8;
-				int p7 = s9 * s10;
-
-				result[aux_1][aux_2] = p5 + p4 -p2 + p6;
-				result[aux_1][aux_2 + 1] = p1 + p2;
-				result[aux_1 + 1][aux_2] = p3 + p4;
-				result[aux_1 + 1][aux_2 +1] = p5 + p1 - p3 - p7;
-
-				aux_2 = aux_2 + 2;
-			}
-		}
-
-}
-
-int main()
-{
-  int n1,m1,n2,m2;
-
-  FILE *in;
+	FILE *in;
 	in = fopen("in.txt", "r");
 
 	if (in == NULL){
-   		printf("File not found\n");
+   		printf("FILE NOT FOUND\n");
    		return 0;
 	}
 
-  fscanf(in,"%d %d %d %d\n",&n1,&m1,&n2,&m2);
+	fscanf(in,"%d %d %d %d",&n1,&m1,&n2,&m2);
 
-  if(m1 != n2)
-  {
-    printf("Invalid Operation\n");
-    return 0;
-  }
-
-  int matriz_a[n1][m1], matriz_b[n2][m2];
-
-  int aux_1 = 0, aux_2 = 0;
-  while(aux_1 < n1)
-  {
-    if (aux_2 == (m1-1)) {
-      fscanf(in,"%d\n",&matriz_a[aux_1][aux_2]);
-      aux_1++;
-      aux_2 = 0;
-    }
-    else
-    {
-      fscanf(in,"%d ",&matriz_a[aux_1][aux_2]);
-      aux_2++;
-    }
-  }
-  fscanf(in,"\n");
-  aux_1 = 0, aux_2 = 0;
-  while (aux_1 < n2) {
-
-    if (aux_2 == (m2-1)) {
-      fscanf(in,"%d ",&matriz_b[aux_1][aux_2]);
-      aux_1++;
-      aux_2 = 0;
-    }
-    else
-    {
-      fscanf(in,"%d ",&matriz_b[aux_1][aux_2]);
-      aux_2++;
-  }
+	if (m1 != n2){
+		printf("INVALID OPERATION\n");
+		return 0;
 	}
 
-	int n;
-		if(n1 >= m1 && n1 >= n2 && n1 >= m2)
+	else if(n1== 1 && m2 == 1)
 	{
-		n = n1;
+		int a,b;
+		fscanf(in,"%d\n%d\n",&a,&b);
+		printf("18110495\n");
+		printf("1 1\n");
+		printf("%d\n",(a*b) );
 	}
-	else if(m1 >= n2 && n2 >= m2)
-	{
-		n = m1;
-	}
-	else if(n2 >= m2)
-	{
-		n = n2;
-	}
+
 	else
 	{
-		n = m2;
-	}
-	 	int new_n = check(n,n,1);
-	 	int result[new_n][new_n];
-
-
-	if(n1 == 1 && m1 == 1 && n2 == 1 && m2 == 1)
-	{
-		result[0][0] = (matriz_a[0][0]*matriz_b[0][0]);
-	}
-	else
-	{
-	 	int new_matriz_a[new_n][new_n];
-	 	aux_1 = 0;
-	 	aux_2 = 0;
-		while(aux_1 < new_n)
-		{
-			if(aux_2 >= new_n)
-			{
-				aux_1++;
-				aux_2 = 0;
-			}
-			else
-			{
-				if(aux_1 >= n1||aux_2 >= m1)
-				{
-					new_matriz_a[aux_1][aux_2] = 0;
-				}
-				else
-				{
-					new_matriz_a[aux_1][aux_2] = matriz_a[aux_1][aux_2];
-				}
-				aux_2++;
-			}
+		if(n1 >= m1 && n1 >= n2 && n1 >= m2){
+			n = n1;
+		}else if(m1 >= n2 && m1 >= m2){
+			n = m1;
+		}else if(n2 >= m2){
+			n = n2;
+		}else{
+			n = m2;
 		}
 
-		int new_matriz_b[new_n][new_n];
-		aux_1 = 0;
-	 	aux_2 = 0;
-	 	while(aux_1 < new_n)
-		{
-			if(aux_2 >= new_n)
-			{
-				aux_1++;
-				aux_2 = 0;
-			}
-			else
-			{
-				if(aux_1 >= n2||aux_2 >= m2)
-				{
-					new_matriz_b[aux_1][aux_2] = 0;
-				}
-				else
-				{
-					new_matriz_b[aux_1][aux_2] = matriz_b[aux_1][aux_2];
-				}
-				aux_2++;
-			}
+		while(new_n < n){
+			new_n *= 2;
 		}
 
-		strassen_multi(new_matriz_a,new_matriz_b,result, n);
+		int** matrixA = create(new_n,in,n1,m1);
+		int** matrixB = create(new_n,in,n2,m2);
+		n = new_n;
 
+		int ** strassens_Res = strassen(matrixA,matrixB,n);
+		printMatrix(strassens_Res,n,n1,m2);
 	}
 
-
-
-  print_result(result,n1,m2);
-
-  fclose(in);
-
-  return 0;
-
+	fclose(in);
+	return 0;
 }
